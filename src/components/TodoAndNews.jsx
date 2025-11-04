@@ -1,5 +1,5 @@
-import React, { useEffect, useMemo, useState } from 'react'
-import { CheckCircle2, Circle, Trash2, Plus, Newspaper } from 'lucide-react'
+import React, { useEffect, useState } from 'react'
+import { CheckCircle2, Circle, Trash2, Plus, Newspaper, X, ExternalLink } from 'lucide-react'
 
 const TODO_KEY = 'homepage_todos_v1'
 
@@ -80,6 +80,7 @@ function TodoList() {
 function NewsFeed() {
   const [items, setItems] = useState([])
   const [loading, setLoading] = useState(true)
+  const [fullView, setFullView] = useState(false)
 
   useEffect(() => {
     const fetchNews = async () => {
@@ -97,6 +98,8 @@ function NewsFeed() {
     fetchNews()
   }, [])
 
+  const highlights = items.slice(0, 5)
+
   return (
     <div className="space-y-3">
       {loading ? (
@@ -104,23 +107,74 @@ function NewsFeed() {
       ) : items.length === 0 ? (
         <p className="text-sm text-slate-400">No stories available right now.</p>
       ) : (
-        <ul className="space-y-2 max-h-80 overflow-auto pr-1">
-          {items.map((i) => (
-            <li key={i.objectID} className="bg-slate-900/60 border border-slate-700 rounded-lg px-3 py-2">
-              <a
-                href={i.url || `https://news.ycombinator.com/item?id=${i.objectID}`}
-                target="_blank"
-                rel="noopener noreferrer"
-                className="text-slate-200 hover:text-white"
-              >
-                {i.title}
-              </a>
-              <div className="text-xs text-slate-500 mt-1">
-                {i.points} points • {i.author}
-              </div>
-            </li>
-          ))}
-        </ul>
+        <>
+          <ul className="space-y-2">
+            {highlights.map((i) => (
+              <li key={i.objectID} className="bg-slate-900/60 border border-slate-700 rounded-lg px-3 py-2">
+                <a
+                  href={i.url || `https://news.ycombinator.com/item?id=${i.objectID}`}
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  className="text-slate-200 hover:text-white"
+                >
+                  {i.title}
+                </a>
+                <div className="text-xs text-slate-500 mt-1">
+                  {i.points} points • {i.author}
+                </div>
+              </li>
+            ))}
+          </ul>
+
+          <div className="flex items-center justify-center gap-3 pt-2">
+            <button
+              onClick={() => setFullView(true)}
+              className="px-3 py-2 rounded-lg bg-slate-800 hover:bg-slate-700 text-slate-200 border border-slate-700"
+            >
+              Open full Discover
+            </button>
+            <a
+              href="https://news.ycombinator.com/"
+              target="_blank"
+              rel="noopener noreferrer"
+              className="inline-flex items-center gap-2 px-3 py-2 rounded-lg bg-blue-600 hover:bg-blue-500 text-white"
+            >
+              Open HN <ExternalLink size={14} />
+            </a>
+          </div>
+        </>
+      )}
+
+      {fullView && (
+        <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-slate-950/80 backdrop-blur-sm">
+          <div className="w-full max-w-3xl max-h-[85vh] overflow-hidden rounded-2xl border border-slate-800 bg-slate-900">
+            <div className="flex items-center justify-between px-4 py-3 border-b border-slate-800">
+              <div className="flex items-center gap-2 text-slate-200 font-semibold"><Newspaper size={18} className="text-blue-400"/> Discover</div>
+              <button onClick={() => setFullView(false)} className="p-2 rounded-lg hover:bg-slate-800 text-slate-300" aria-label="Close">
+                <X size={18} />
+              </button>
+            </div>
+            <div className="p-4 overflow-auto">
+              <ul className="space-y-2">
+                {items.map((i) => (
+                  <li key={i.objectID} className="bg-slate-900/60 border border-slate-700 rounded-lg px-3 py-2">
+                    <a
+                      href={i.url || `https://news.ycombinator.com/item?id=${i.objectID}`}
+                      target="_blank"
+                      rel="noopener noreferrer"
+                      className="text-slate-200 hover:text-white"
+                    >
+                      {i.title}
+                    </a>
+                    <div className="text-xs text-slate-500 mt-1">
+                      {i.points} points • {i.author}
+                    </div>
+                  </li>
+                ))}
+              </ul>
+            </div>
+          </div>
+        </div>
       )}
     </div>
   )
